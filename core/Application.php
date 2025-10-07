@@ -6,14 +6,20 @@ namespace App\core;
 
 class Application {
 
+    public static string $ROOT_DIR;
     public Router $router;
+    public static Application $app;
 
     public function __construct
     (
-        public Request $request
+        public string $rootPath,
+        public Request $request,
+        public Response $response
     )
     {
-        $this->router = new Router($this->request);
+        self::$ROOT_DIR = $rootPath;
+        self::$app = $this;
+        $this->router = new Router($this->request, $this->response);
     }
 
     public function run() {

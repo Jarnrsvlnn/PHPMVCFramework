@@ -10,9 +10,11 @@ class Router {
 
     public function __construct
     (
-        public Request $request
+        public Request $request,
+        public Response $response
     )
-    {}
+    {
+    }
 
     /**
      * Gets the routes and then stores in the array property routes each as an associative array
@@ -33,10 +35,6 @@ class Router {
         // todo
     }
 
-    public function renderView($view) {
-        include_once __DIR__ . "/../views/$view.php"; 
-    }
-
     /**
      * Determines the current path requested by the user and the current method
      * and takes the corresponding callback from the routes array.
@@ -49,6 +47,7 @@ class Router {
         $callback = $this->routes[$method][$path] ?? false;
 
         if ($callback === false) {
+            $this->response->setResponseCode(404);
             return 'Server Not Found';
         }
 
@@ -57,5 +56,24 @@ class Router {
         }
 
         return call_user_func($callback);
+    }
+
+    
+    public function renderView($view) {
+        $layoutContent = $this->layoutContent();
+        $viewContent = $this->renderOnlyView($view);
+        return str_replace('{{content}}', $viewContent, $layoutContent);
+    }
+
+    public function layoutContent() {
+        ob_start();
+        include_once Application::$ROOT_DIR . "/views/layouts/main.php";
+        return ob_get_clean();
+    }
+
+    protected function renderOnlyView($view) {
+        ob_start();
+        include_once Application::$ROOT_DIR . "/views/$view.php";
+        return ob_get_clean();
     }
 }
