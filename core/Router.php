@@ -8,6 +8,12 @@ class Router {
 
     protected array $routes = [];
 
+    public function __construct
+    (
+        public Request $request
+    )
+    {}
+
     /**
      * Gets the routes and then stores in the array property routes each as an associative array
      */
@@ -27,15 +33,29 @@ class Router {
         // todo
     }
 
+    public function renderView($view) {
+        include_once __DIR__ . "/../views/$view.php"; 
+    }
+
     /**
      * Determines the current path requested by the user and the current method
      * and takes the corresponding callback from the routes array.
      */
 
     public function resolve() {
-        
-        echo '<pre>';
-        var_dump($_SERVER);
-        echo '</pre>';
+
+        $method = $this->request->getMethod();
+        $path = $this->request->getPath();
+        $callback = $this->routes[$method][$path] ?? false;
+
+        if ($callback === false) {
+            return 'Server Not Found';
+        }
+
+        if(is_string($callback)) {
+            return $this->renderView($callback);
+        }
+
+        return call_user_func($callback);
     }
 }

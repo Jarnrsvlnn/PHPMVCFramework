@@ -6,19 +6,19 @@ namespace App\core;
 
 class Application {
 
+    public Router $router;
+
     public function __construct
     (
-        public Router $router
+        public Request $request
     )
     {
-        /**
-         * instantiate a new router object everytime this application
-         * is instantiated 
-         * */
-        $this->router = new Router(); 
+        $this->router = new Router($this->request);
     }
 
     public function run() {
-        $this->router->resolve();
+
+        echo $this->router->resolve();
     }
+
 }
