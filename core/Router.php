@@ -45,7 +45,7 @@ class Router {
         if(is_array($callback)) {
             $controller = new $callback[0]();
             $method = $callback[1];
-            return call_user_func([$controller, $method]); // $controller->$method
+            return call_user_func([$controller, $method], $this->request); // $controller->$method
         }
 
         return call_user_func($callback);
