@@ -13,32 +13,19 @@ class Router {
         public Request $request,
         public Response $response
     )
-    {
-    }
-
-    /**
-     * Gets the routes and then stores in the array property routes each as an associative array
-     */
+    {}
 
     public function get(string $path, $callback) { 
-
-        /**
-         * generates or saves the routes as associative array inside an another
-         * associative array called get, and the other one is called post.
-         */
 
         $this->routes['get'][$path] = $callback;
 
     }
 
-    public function post() {
-        // todo
-    }
+    public function post(string $path, $callback) { 
 
-    /**
-     * Determines the current path requested by the user and the current method
-     * and takes the corresponding callback from the routes array.
-     */
+        $this->routes['post'][$path] = $callback;
+
+    }
 
     public function resolve() {
 
@@ -48,20 +35,26 @@ class Router {
 
         if ($callback === false) {
             $this->response->setResponseCode(404);
-            return 'Server Not Found';
+            return $this->renderView('_404');
         }
 
         if(is_string($callback)) {
             return $this->renderView($callback);
         }
 
+        if(is_array($callback)) {
+            $controller = new $callback[0]();
+            $method = $callback[1];
+            return call_user_func([$controller, $method]); // $controller->$method
+        }
+
         return call_user_func($callback);
     }
 
     
-    public function renderView($view) {
+    public function renderView($view, $params = []) {
         $layoutContent = $this->layoutContent();
-        $viewContent = $this->renderOnlyView($view);
+        $viewContent = $this->renderOnlyView($view, $params);
         return str_replace('{{content}}', $viewContent, $layoutContent);
     }
 
@@ -71,7 +64,12 @@ class Router {
         return ob_get_clean();
     }
 
-    protected function renderOnlyView($view) {
+    protected function renderOnlyView($view, $params) {
+
+        foreach($params as $key => $value) {
+            $$key = $value; // becomes $name = 'John';
+        }
+
         ob_start();
         include_once Application::$ROOT_DIR . "/views/$view.php";
         return ob_get_clean();
