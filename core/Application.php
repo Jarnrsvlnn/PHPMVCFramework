@@ -8,7 +8,8 @@ class Application {
 
     public static string $ROOT_DIR;
     public Router $router;
-    public static Application $app;
+    public static Application $app; 
+    public Controller $controller;
 
     public function __construct
     (
@@ -32,6 +33,14 @@ class Application {
     public function run() {
 
         echo $this->router->resolve();
+    }
+
+    public function getController() {
+        return $this->controller;
+    }
+
+    public function setController(Controller $controller) {
+        $this->controller = $controller;
     }
 
 }

@@ -43,9 +43,10 @@ class Router {
         }
 
         if(is_array($callback)) {
-            $controller = new $callback[0]();
+            Application::$app->controller = new $callback[0]();
+            $callback[0] = Application::$app->controller;
             $method = $callback[1];
-            return call_user_func([$controller, $method], $this->request); // $controller->$method
+            return call_user_func([$callback[0], $method], $this->request); // $controller->$method
         }
 
         return call_user_func($callback);
@@ -59,8 +60,10 @@ class Router {
     }
 
     public function layoutContent() {
+
+        $layout = Application::$app->controller->layout;
         ob_start();
-        include_once Application::$ROOT_DIR . "/views/layouts/main.php";
+        include_once Application::$ROOT_DIR . "/views/layouts/$layout.php";
         return ob_get_clean();
     }
 
